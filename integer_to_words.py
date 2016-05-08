@@ -43,7 +43,9 @@ class IntegerToWordsConverter:
 
     @staticmethod
     def get_place_value(place_names_index):
-        return 10 ** ((place_names_index + 1) * 3)
+        zero_index_offset = 1
+        thousand_exponent = 3
+        return 10 ** ((place_names_index + zero_index_offset) * thousand_exponent)
 
     def compound_teen_to_words(self, n):
         ones_digit = n - 10
@@ -51,7 +53,7 @@ class IntegerToWordsConverter:
 
     def two_digit_hyphen_to_words(self, n):
         tens_value = IntegerToWordsConverter.div_round_down(n, 10) * 10
-        ones_value = n % 10
+        ones_value = n - tens_value
         return self.translations[tens_value] + "-" + self.translations[ones_value]
 
     def recursive_conversion_starting_at_place(self, n, place_name, place_value):

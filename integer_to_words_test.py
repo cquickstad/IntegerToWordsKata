@@ -97,6 +97,8 @@ class ToWordsTests(unittest.TestCase):
         max_limit = 10 ** 102
         self.assertEqual("unknown", self.cut.to_words(max_limit))
 
+    def test_zero(self):
+        self.assertEqual("zero", self.cut.to_words(0))
 
 
 if __name__ == '__main__':

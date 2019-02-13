@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
 # Integer To Words
@@ -11,6 +12,8 @@
 #
 #       Review large number names:
 #           http://bmanolov.free.fr/numbers_names.php
+from argparse import ArgumentParser
+import sys
 
 
 class IntegerToWordsConverter:
@@ -88,3 +91,17 @@ class IntegerToWordsConverter:
             return self.large_number_to_words(n)
         else:
             return "unknown"
+
+
+def parse_arguments():
+    ap = ArgumentParser(description="Integer to Words")
+    ap.add_argument('integer', nargs='?', type=int, default=None, help="Integer to convert to words")
+    return ap.parse_args()
+
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    converter = IntegerToWordsConverter()
+    if args.integer is None:
+        args.integer = int(sys.stdin.read())
+    print(converter.to_words(args.integer))

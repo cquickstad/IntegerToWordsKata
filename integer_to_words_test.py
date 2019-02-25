@@ -7,7 +7,7 @@ import integer_to_words
 
 class ToWordsTests(unittest.TestCase):
     def setUp(self):
-        self.cut = integer_to_words.IntegerToWordsConverter()  # (C)lass (U)nder (T)est
+        self.cut = integer_to_words.IntegerToWords()  # (C)lass (U)nder (T)est
 
     def test_that_single_digits_return_words(self):
         test_cases = [(1, "one"), (2, "two"), (3, "three"), (4, "four"), (5, "five"), (6, "six"), (7, "seven"),
@@ -78,12 +78,10 @@ class ToWordsTests(unittest.TestCase):
             self.assertEqual(expected, self.cut.to_words(n))
 
     def test_all_place_names(self):
-        p = 1
-        n = 0
-        for _ in self.cut.place_names:
-            p *= 1000
-            n += p
-        n += 116
+        n = 116
+        for _, v, _ in self.cut.place_name_value_limit:  # assume that the values and limits are correct
+            n += v
+
         self.assertEqual("one duotrigintillion one untrigintillion one trigintillion one novemvigintillion "
                          "one octovigintillion one septenvigintillion one sexvigintillion one quinvigintillion "
                          "one quattuorvigintillion one trevigintillion one duovigintillion one unvigintillion "

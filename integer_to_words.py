@@ -18,51 +18,131 @@ from argparse import ArgumentParser
 import sys
 
 
-class IntegerToWordsConverter:
-    def __init__(self):
-        # translations is a dictionary that handles basic cases (i.e. 2=>'two')
-        # and cases which must map because they are special (i.e. 13=>'thirteen' not 'threeteen').
-        # This dictionary is the base of higher recursive calls that handle the billions, thousands, etc.
-        # (i.e. the 'three' in 'three billion').
-        self.translations = {0: "zero", 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven",
-                             8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve", 13: "thirteen",
-                             15: "fifteen", 18: "eighteen", 20: "twenty", 30: "thirty", 40: "forty", 50: "fifty",
-                             60: "sixty", 70: "seventy", 80: "eighty", 90: "ninety"}
+class IntegerToWords:
+    # translations is a dictionary that handles basic cases (i.e. 2=>'two')
+    # and cases which must map because they are special (i.e. 13=>'thirteen' not 'threeteen').
+    # This dictionary is the base of higher recursive calls that handle the billions, thousands, etc.
+    # (i.e. the 'three' in 'three billion').
+    translations = {0: "zero", 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven",
+                    8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve", 13: "thirteen",
+                    15: "fifteen", 18: "eighteen", 20: "twenty", 30: "thirty", 40: "forty", 50: "fifty",
+                    60: "sixty", 70: "seventy", 80: "eighty", 90: "ninety"}
 
-        # Assumption: place names in this list are separated by a factor of 1000 in increasing order
-        self.place_names = ["thousand", "million", "billion", "trillion", "quadrillion",
-                            "quintillion", "sextillion", "septillion", "octillion",
-                            "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion",
-                            "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion",
-                            "octodecillion", "novemdecillion", "vigintillion", "unvigintillion",
-                            "duovigintillion", "trevigintillion", "quattuorvigintillion",
-                            "quinvigintillion", "sexvigintillion", "septenvigintillion",
-                            "octovigintillion", "novemvigintillion", "trigintillion",
-                            "untrigintillion", "duotrigintillion"]
-
-        self.max_limit = self.get_place_value(len(self.place_names))
-
-    @staticmethod
-    def div_round_down(n, denominator):
-        return int(n / denominator)
-
-    @staticmethod
-    def get_place_value(place_names_index):
-        zero_index_offset = 1
-        thousand_exponent = 3
-        return 10 ** ((place_names_index + zero_index_offset) * thousand_exponent)
+    NAME = 0
+    VALUE = 1
+    LIMIT = 2
+    place_name_value_limit = [
+        ("thousand",
+         1_000,
+         999_999),
+        ("million",
+         1_000_000,
+         999_999_999),
+        ("billion",
+         1_000_000_000,
+         999_999_999_999),
+        ("trillion",
+         1_000_000_000_000,
+         999_999_999_999_999),
+        ("quadrillion",
+         1_000_000_000_000_000,
+         999_999_999_999_999_999),
+        ("quintillion",
+         1_000_000_000_000_000_000,
+         999_999_999_999_999_999_999),
+        ("sextillion",
+         1_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999),
+        ("septillion",
+         1_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999),
+        ("octillion",
+         1_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999),
+        ("nonillion",
+         1_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999),
+        ("decillion",
+         1_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999),
+        ("undecillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("duodecillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("tredecillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("quattuordecillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("quindecillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("sexdecillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("septendecillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("octodecillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("novemdecillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("vigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("unvigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("duovigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("trevigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("quattuorvigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("quinvigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("sexvigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("septenvigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("octovigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("novemvigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("trigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("untrigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999),
+        ("duotrigintillion",
+         1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
+         999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999)]
 
     def compound_teen_to_words(self, n):
         ones_digit = n - 10
         return self.translations[ones_digit] + "teen"
 
     def two_digit_hyphen_to_words(self, n):
-        tens_value = IntegerToWordsConverter.div_round_down(n, 10) * 10
+        tens_value = int(n / 10) * 10
         ones_value = n - tens_value
         return self.translations[tens_value] + "-" + self.translations[ones_value]
 
     def recursive_conversion_starting_at_place(self, n, place_name, place_value):
-        value_in_place = IntegerToWordsConverter.div_round_down(n, place_value)
+        value_in_place = int(n / place_value)
         integer_remainder = n - (value_in_place * place_value)
         remainder_in_words = (" " + self.to_words(integer_remainder)) if integer_remainder > 0 else ""
         return self.to_words(value_in_place) + " " + place_name + remainder_in_words
@@ -71,10 +151,9 @@ class IntegerToWordsConverter:
         return self.recursive_conversion_starting_at_place(n, "hundred", 100)
 
     def get_largest_place_name_and_value(self, n):
-        for i, place_name in enumerate(self.place_names):
-            place_limit = self.get_place_value(i + 1)
-            if n < place_limit:
-                return place_name, self.get_place_value(i)
+        for name, value, limit in self.place_name_value_limit:
+            if n < limit:
+                return name, value
 
     def large_number_to_words(self, n):
         place_name, place_value = self.get_largest_place_name_and_value(n)
@@ -89,7 +168,7 @@ class IntegerToWordsConverter:
             return self.two_digit_hyphen_to_words(n)
         elif n < 1000:
             return self.hundreds_to_words(n)
-        elif n < self.max_limit:
+        elif n < self.place_name_value_limit[-1][self.LIMIT]:
             return self.large_number_to_words(n)
         else:
             return "unknown"
@@ -103,7 +182,7 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
-    converter = IntegerToWordsConverter()
+    converter = IntegerToWords()
     if args.integer is None:
         args.integer = int(sys.stdin.read())
     print(converter.to_words(args.integer))

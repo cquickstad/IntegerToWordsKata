@@ -132,44 +132,51 @@ class IntegerToWords:
          1_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000,
          999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999)]
 
-    def compound_teen_to_words(self, n):
+    @staticmethod
+    def compound_teen_to_words(n):
         ones_digit = n - 10
-        return self.translations[ones_digit] + "teen"
+        return IntegerToWords.translations[ones_digit] + "teen"
 
-    def two_digit_hyphen_to_words(self, n):
+    @staticmethod
+    def two_digit_hyphen_to_words(n):
         tens_value = int(n / 10) * 10
         ones_value = n - tens_value
-        return self.translations[tens_value] + "-" + self.translations[ones_value]
+        return IntegerToWords.translations[tens_value] + "-" + IntegerToWords.translations[ones_value]
 
-    def recursive_conversion_starting_at_place(self, n, place_name, place_value):
+    @staticmethod
+    def recursive_conversion_starting_at_place(n, place_name, place_value):
         value_in_place = int(n / place_value)
         integer_remainder = n - (value_in_place * place_value)
-        remainder_in_words = (" " + self.to_words(integer_remainder)) if integer_remainder > 0 else ""
-        return self.to_words(value_in_place) + " " + place_name + remainder_in_words
+        remainder_in_words = (" " + IntegerToWords.to_words(integer_remainder)) if integer_remainder > 0 else ""
+        return IntegerToWords.to_words(value_in_place) + " " + place_name + remainder_in_words
 
-    def hundreds_to_words(self, n):
-        return self.recursive_conversion_starting_at_place(n, "hundred", 100)
+    @staticmethod
+    def hundreds_to_words(n):
+        return IntegerToWords.recursive_conversion_starting_at_place(n, "hundred", 100)
 
-    def get_largest_place_name_and_value(self, n):
-        for name, value, limit in self.place_name_value_limit:
+    @staticmethod
+    def get_largest_place_name_and_value(n):
+        for name, value, limit in IntegerToWords.place_name_value_limit:
             if n < limit:
                 return name, value
 
-    def large_number_to_words(self, n):
-        place_name, place_value = self.get_largest_place_name_and_value(n)
-        return self.recursive_conversion_starting_at_place(n, place_name, place_value)
+    @staticmethod
+    def large_number_to_words(n):
+        place_name, place_value = IntegerToWords.get_largest_place_name_and_value(n)
+        return IntegerToWords.recursive_conversion_starting_at_place(n, place_name, place_value)
 
-    def to_words(self, n):
-        if n in self.translations:
-            return self.translations[n]
+    @staticmethod
+    def to_words(n):
+        if n in IntegerToWords.translations:
+            return IntegerToWords.translations[n]
         elif n < 20:
-            return self.compound_teen_to_words(n)
+            return IntegerToWords.compound_teen_to_words(n)
         elif n < 100:
-            return self.two_digit_hyphen_to_words(n)
+            return IntegerToWords.two_digit_hyphen_to_words(n)
         elif n < 1000:
-            return self.hundreds_to_words(n)
-        elif n < self.place_name_value_limit[-1][self.LIMIT]:
-            return self.large_number_to_words(n)
+            return IntegerToWords.hundreds_to_words(n)
+        elif n < IntegerToWords.place_name_value_limit[-1][IntegerToWords.LIMIT]:
+            return IntegerToWords.large_number_to_words(n)
         else:
             return "unknown"
 
@@ -182,7 +189,6 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
-    converter = IntegerToWords()
     if args.integer is None:
         args.integer = int(sys.stdin.read())
-    print(converter.to_words(args.integer))
+    print(IntegerToWords.to_words(args.integer))

@@ -3,6 +3,8 @@
 
 # Integer To Words
 #
+# http://codingdojo.org/kata/NumbersInWords/
+#
 # Convert integer value to word equivalent similar to how you would write out the number on a check.
 #
 # FYI:
